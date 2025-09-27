@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Debug info -->
+<div class="container my-2">
+    <div class="alert alert-info">
+        <strong>Debug Info:</strong> 
+        Prediction: {{ result.prediction }}, 
+        Confidence: {{ result.confidence }}, 
+        Type: {{ result.input_type }}
+    </div>
+</div>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header Section -->
+            <div class="text-center mb-4">
+                <h2 class="display-6 fw-bold text-primary mb-3">
+                    <i class="bi bi-robot me-2"></i>AI Analysis Results
+                </h2>
+                <p class="lead text-muted">Your medical image has been analyzed by our AI system</p>
+            </div>
+
+            <!-- Results Card -->
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-body p-0">
+                    <!-- Image Section -->
+                    {% if result.image_url %}
+                    <div class="position-relative bg-light p-4 text-center">
+                        <img src="{{ result.image_url }}" class="img-fluid rounded-3 shadow" alt="Analyzed image" style="max-height: 350px; object-fit: contain;">
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-primary fs-6 px-3 py-2">
+                                <i class="bi bi-cpu me-1"></i>AI Analysis
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Results Section -->
+                    <div class="p-4">
+                        <div class="row g-4">
+                            <!-- Prediction Result -->
+                            <div class="col-md-6">
+                                <div class="text-center p-4 rounded-3 {% if result.prediction == 'Benign' %}bg-success bg-opacity-10 border border-success{% elif result.prediction == 'Malignant' %}bg-danger bg-opacity-10 border border-danger{% else %}bg-warning bg-opacity-10 border border-warning{% endif %}">
+                                    <div class="mb-3">
+                                        {% if result.prediction == 'Benign' %}
+                                            <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                                        {% elif result.prediction == 'Malignant' %}
+                                            <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
+                                        {% else %}
+                                            <i class="bi bi-info-circle-fill text-warning" style="font-size: 3rem;"></i>
+                                        {% endif %}
+                                    </div>
+                                    <h4 class="fw-bold mb-2">
+                                        {% if result.prediction == 'Benign' %}
+                                            BENIGN (B)
+                                        {% elif result.prediction == 'Malignant' %}
+                                            MALIGNANT (M)
+                                        {% elif result.prediction == 'Normal' %}
+                                            NORMAL (N)
+                                        {% else %}
+                                            {{ result.prediction }}
+                                        {% endif %}
+                                    </h4>
+                                    <div class="mb-2">
+                                        {% if result.prediction == 'Benign' %}
+                                            <span class="badge bg-success fs-5 px-3 py-2">B</span>
+                                        {% elif result.prediction == 'Malignant' %}
+                                            <span class="badge bg-danger fs-5 px-3 py-2">M</span>
+                                        {% elif result.prediction == 'Normal' %}
+                                            <span class="badge bg-warning fs-5 px-3 py-2">N</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-muted mb-0">Prediction Result</p>
+                                </div>
+                            </div>
+
+                            <!-- Confidence Level -->
+                            <div class="col-md-6">
+                                <div class="text-center p-4 rounded-3 bg-primary bg-opacity-10 border border-primary">
+                                    <div class="mb-3">
+                                        <i class="bi bi-graph-up text-primary" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h4 class="fw-bold mb-2 text-primary">{{ "%.1f"|format(result.confidence * 100) }}%</h4>
+                                    <p class="text-muted mb-0">Confidence Level</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="fw-semibold">Confidence Level</span>
+                                <span class="text-muted">{{ "%.1f"|format(result.confidence * 100) }}%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar {% if result.confidence > 0.8 %}bg-success{% elif result.confidence > 0.6 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                     style="width: {{ result.confidence * 100 }}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Method -->
+                        {% if result.method %}
+                        <div class="mt-4">
+                            <div class="alert alert-info border-0 rounded-3">
+                                <i class="bi bi-gear me-2"></i>
+                                <strong>Analysis Method:</strong> {{ result.method }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- AI Learning Indicator -->
+                        <div class="mt-4">
+                            <div class="alert alert-light border-0 rounded-3 text-center">
+                                <small class="text-muted">
+                                    <i class="bi bi-cpu me-1"></i>
+                                    Our AI continuously learns and improves from every analysis
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-5 d-flex gap-3 justify-content-center">
+                            <a href="/" class="btn btn-primary btn-lg px-4">
+                                <i class="bi bi-house me-2"></i>Back to Home
+                            </a>
+                            {% if result.input_type == 'form' %}
+                                <a href="/form-predict" class="btn btn-outline-primary btn-lg px-4">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+                                </a>
+                            {% else %}
+                                <a href="/image-predict" class="btn btn-outline-primary btn-lg px-4">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="mt-4 text-center">
+                <div class="alert alert-info border-0 rounded-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Note:</strong> This is an AI-powered analysis. Please consult with a medical professional for accurate diagnosis.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+.rounded-3 {
+    border-radius: 0.75rem !important;
+}
+</style>
+
+{% endblock %}

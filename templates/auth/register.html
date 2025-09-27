@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Breast Cancer Detection{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h3 class="mb-0"><i class="bi bi-person-plus me-2"></i>Create Account</h3>
+                </div>
+                <div class="card-body p-4">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                                    <i class="bi bi-{{ 'exclamation-triangle' if category == 'error' else 'info-circle' }} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" id="registerForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-success w-100 py-2" id="registerBtn" onclick="submitRegister()">
+                            <i class="bi bi-person-plus me-2"></i>Create Account
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted">Already have an account? <a href="{{ url_for('login') }}" class="text-decoration-none">Sign in here</a></p>
+                        <p><a href="{{ url_for('index') }}" class="text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Back to Home</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function submitRegister() {
+    const registerBtn = document.getElementById('registerBtn');
+    const form = document.getElementById('registerForm');
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    // Basic validation
+    if (!username || !email || !password || !confirmPassword) {
+        alert('Please fill in all fields');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+    }
+    
+    // Show loading state
+    registerBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating Account...';
+    registerBtn.disabled = true;
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('confirm_password', confirmPassword);
+    
+    // Submit form
+    fetch('/register', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            return response.text();
+        }
+    })
+    .then(html => {
+        if (html) {
+            document.body.innerHTML = html;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        registerBtn.innerHTML = '<i class="bi bi-person-plus me-2"></i>Create Account';
+        registerBtn.disabled = false;
+        alert('Registration failed. Please try again.');
+    });
+}
+</script>
+
+{% endblock %}

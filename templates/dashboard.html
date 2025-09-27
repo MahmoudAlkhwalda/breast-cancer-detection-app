@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Breast Cancer Detection{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="mb-2">Dashboard</h1>
+                    <p class="text-muted mb-0">Welcome back, {{ current_user.username }}! Here's an overview of your predictions.</p>
+                </div>
+                <div>
+                    <span class="badge bg-primary fs-6 px-3 py-2">
+                        <i class="bi bi-person-check me-1"></i>Active User
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-lg border-0 glass">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-primary">Total Predictions</h6>
+                            <h3 class="mb-0 text-gradient">{{ stats.total_predictions }}</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                            <i class="bi bi-graph-up fs-4 text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-lg border-0 glass">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-success">Form Predictions</h6>
+                            <h3 class="mb-0 text-gradient">{{ stats.form_predictions }}</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                            <i class="bi bi-ui-checks-grid fs-4 text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-lg border-0 glass">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-info">Image Predictions</h6>
+                            <h3 class="mb-0 text-gradient">{{ stats.image_predictions }}</h3>
+                        </div>
+                        <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                            <i class="bi bi-image fs-4 text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-lg border-0 glass">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-warning">Verified</h6>
+                            <h3 class="mb-0 text-gradient">{{ stats.verified_predictions }}</h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                            <i class="bi bi-shield-check fs-4 text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a href="{{ url_for('form_predict') }}" class="btn btn-primary btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                                <i class="bi bi-ui-checks-grid fs-1 mb-2"></i>
+                                <span>Form Prediction</span>
+                                <small class="text-light">Clinical Data Analysis</small>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('image_predict') }}" class="btn btn-success btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                                <i class="bi bi-image fs-1 mb-2"></i>
+                                <span>Image Analysis</span>
+                                <small class="text-light">Medical Image Processing</small>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('my_predictions') }}" class="btn btn-info btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                                <i class="bi bi-list-ul fs-1 mb-2"></i>
+                                <span>View Predictions</span>
+                                <small class="text-light">History & Reports</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Predictions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Predictions</h5>
+                </div>
+                <div class="card-body">
+                    {% if predictions %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Result</th>
+                                    <th>Confidence</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prediction in predictions %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-{{ 'primary' if prediction.prediction_type == 'form' else 'success' }} px-3 py-2">
+                                            <i class="bi bi-{{ 'ui-checks-grid' if prediction.prediction_type == 'form' else 'image' }} me-1"></i>
+                                            {{ prediction.prediction_type.title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if prediction.prediction_result == 'benign' else 'danger' if prediction.prediction_result == 'malignant' else 'secondary' }} px-3 py-2">
+                                            {{ prediction.prediction_result.title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                <div class="progress-bar bg-{{ 'success' if prediction.confidence > 0.7 else 'warning' if prediction.confidence > 0.5 else 'danger' }}" 
+                                                     style="width: {{ prediction.confidence * 100 }}%"></div>
+                                            </div>
+                                            <span class="fw-bold">{{ "%.1f"|format(prediction.confidence * 100) }}%</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ prediction.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        {% if prediction.is_verified %}
+                                            <span class="badge bg-success px-3 py-2">
+                                                <i class="bi bi-check-circle me-1"></i>Verified
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning px-3 py-2">
+                                                <i class="bi bi-clock me-1"></i>Pending
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                        <h5 class="text-muted mt-3">No predictions yet</h5>
+                        <p class="text-muted">Start making predictions to see them here</p>
+                        <a href="{{ url_for('form_predict') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Make Your First Prediction
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

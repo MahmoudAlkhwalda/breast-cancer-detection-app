@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Prediction - Breast Cancer Detection{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil me-2"></i>Edit Prediction #{{ prediction.id }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Prediction Type</label>
+                                    <input type="text" class="form-control" value="{{ prediction.prediction_type.title() }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Created Date</label>
+                                    <input type="text" class="form-control" value="{{ prediction.created_at.strftime('%Y-%m-%d %H:%M') }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="prediction_result" class="form-label">Prediction Result *</label>
+                                    <select class="form-select" id="prediction_result" name="prediction_result" required>
+                                        <option value="benign" {% if prediction.prediction_result == 'benign' %}selected{% endif %}>Benign</option>
+                                        <option value="malignant" {% if prediction.prediction_result == 'malignant' %}selected{% endif %}>Malignant</option>
+                                        <option value="normal" {% if prediction.prediction_result == 'normal' %}selected{% endif %}>Normal</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please select a prediction result.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="confidence" class="form-label">Confidence Level *</label>
+                                    <div class="input-group">
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="confidence" 
+                                               name="confidence" 
+                                               min="0" 
+                                               max="1" 
+                                               step="0.01" 
+                                               value="{{ prediction.confidence }}" 
+                                               required>
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <div class="form-text">Enter confidence as a decimal (0.0 to 1.0)</div>
+                                    <div class="invalid-feedback">
+                                        Please enter a valid confidence level between 0 and 1.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if prediction.prediction_type == 'form' and prediction.form_data %}
+                        <div class="mb-3">
+                            <label class="form-label">Original Form Data</label>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <pre class="mb-0 small">{{ prediction.form_data | tojson(indent=2) }}</pre>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if prediction.prediction_type == 'image' and prediction.image_filename %}
+                        <div class="mb-3">
+                            <label class="form-label">Original Image</label>
+                            <div class="text-center">
+                                {% if prediction.image_path %}
+                                    <img src="{{ url_for('uploaded_file', filename=prediction.image_filename) }}" 
+                                         class="img-fluid rounded" 
+                                         style="max-height: 200px;" 
+                                         alt="Prediction Image">
+                                {% else %}
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>Image file not found
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Personal Notes</label>
+                            <textarea class="form-control" 
+                                      id="notes" 
+                                      name="notes" 
+                                      rows="3" 
+                                      placeholder="Add any personal notes about this prediction...">{% if prediction.form_data and prediction.form_data.user_notes %}{{ prediction.form_data.user_notes }}{% endif %}</textarea>
+                            <div class="form-text">These notes are private and only visible to you.</div>
+                        </div>
+
+                        {% if prediction.is_verified %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Verified Prediction:</strong> This prediction has been verified by a doctor.
+                            <br>
+                            <strong>Verified Result:</strong> {{ prediction.verified_result.title() }}
+                            <br>
+                            <strong>Verified By:</strong> {{ prediction.verified_by }}
+                            <br>
+                            <strong>Verified At:</strong> {{ prediction.verified_at.strftime('%Y-%m-%d %H:%M') if prediction.verified_at else 'N/A' }}
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('my_predictions') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Predictions
+                            </a>
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-lg me-2"></i>Update Prediction
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Convert confidence percentage display
+document.addEventListener('DOMContentLoaded', function() {
+    const confidenceInput = document.getElementById('confidence');
+    const confidenceDisplay = confidenceInput.nextElementSibling;
+    
+    // Convert decimal to percentage for display
+    const currentValue = parseFloat(confidenceInput.value);
+    if (currentValue <= 1) {
+        confidenceInput.value = currentValue;
+    }
+    
+    confidenceInput.addEventListener('input', function() {
+        let value = parseFloat(this.value);
+        if (value > 1) {
+            // If user enters percentage, convert to decimal
+            this.value = value / 100;
+        }
+    });
+});
+</script>
+{% endblock %}

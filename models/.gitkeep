@@ -1,0 +1,3 @@
+# This file ensures the models directory is tracked by git
+# Large model files (*.h5, *.pkl) are ignored by .gitignore
+# but this directory structure is preserved

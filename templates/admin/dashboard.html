@@ -1,0 +1,727 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+.admin-dashboard {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.admin-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.admin-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.875rem;
+}
+
+.action-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    min-height: 80px;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+.action-btn i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.action-btn span {
+    display: block;
+    font-size: 1rem;
+}
+
+.action-btn small {
+    display: block;
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.professional-table {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.professional-table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.875rem;
+}
+
+.professional-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    vertical-align: middle;
+}
+
+.professional-table tbody tr:hover {
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.badge-professional {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.progress-professional {
+    height: 8px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.progress-bar-professional {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.alert-professional {
+    border: none;
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-professional {
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-professional:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+</style>
+
+<div class="admin-dashboard">
+    <div class="container-fluid">
+        <!-- Header Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="admin-card p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-2 text-dark">
+                                <i class="bi bi-shield-check me-3 text-primary"></i>Admin Dashboard
+                            </h1>
+                            <p class="text-muted mb-0 fs-5">Breast Cancer Prediction System Management</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success fs-6 px-3 py-2">
+                                <i class="bi bi-circle-fill me-2"></i>System Online
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="admin-card p-4">
+                    <h3 class="h4 mb-4 text-dark">
+                        <i class="bi bi-lightning me-2 text-warning"></i>Quick Actions
+                    </h3>
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <a href="/admin/learning-dashboard" class="action-btn w-100 d-flex flex-column align-items-center justify-content-center">
+                                <i class="bi bi-brain"></i>
+                                <span>AI Learning</span>
+                                <small>Monitor AI System</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/admin/export-data" class="action-btn w-100 d-flex flex-column align-items-center justify-content-center" onclick="downloadReport()">
+                                <i class="bi bi-download"></i>
+                                <span>Export Data</span>
+                                <small>Download Reports</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="action-btn w-100 d-flex flex-column align-items-center justify-content-center" onclick="retrainModels()">
+                                <i class="bi bi-arrow-clockwise"></i>
+                                <span>Retrain Models</span>
+                                <small>Update AI Models</small>
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="action-btn w-100 d-flex flex-column align-items-center justify-content-center" onclick="showStatistics()">
+                                <i class="bi bi-graph-up"></i>
+                                <span>Statistics</span>
+                                <small>View Analytics</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="admin-card p-4">
+                    <h3 class="h4 mb-4 text-dark">
+                        <i class="bi bi-bar-chart me-2"></i>System Overview
+                    </h3>
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-primary text-white">
+                                    <i class="bi bi-graph-up"></i>
+                                </div>
+                                <div class="stat-number text-primary">{{ (prediction_stats.form_predictions or 0) + (prediction_stats.image_predictions or 0) }}</div>
+                                <div class="stat-label">Total Predictions</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-success text-white">
+                                    <i class="bi bi-ui-checks"></i>
+                                </div>
+                                <div class="stat-number text-success">{{ prediction_stats.form_predictions or 0 }}</div>
+                                <div class="stat-label">Form Predictions</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-info text-white">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <div class="stat-number text-info">{{ prediction_stats.image_predictions or 0 }}</div>
+                                <div class="stat-label">Image Predictions</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-warning text-white">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <div class="stat-number text-warning">{{ db_stats.total_users if db_stats else 0 }}</div>
+                                <div class="stat-label">Active Users</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prediction Results Breakdown -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="admin-card p-4">
+                    <h3 class="h4 mb-4 text-dark">
+                        <i class="bi bi-pie-chart me-2"></i>Prediction Results Distribution
+                    </h3>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-warning text-white">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                <div class="stat-number text-warning">{{ prediction_stats.benign_predictions or 0 }}</div>
+                                <div class="stat-label">Benign Cases</div>
+                                <small class="text-success">
+                                    {% set benign_percentage = ((prediction_stats.benign_predictions or 0) / ((prediction_stats.benign_predictions or 0) + (prediction_stats.malignant_predictions or 0) + (prediction_stats.normal_predictions or 0)) * 100) if ((prediction_stats.benign_predictions or 0) + (prediction_stats.malignant_predictions or 0) + (prediction_stats.normal_predictions or 0)) > 0 else 0 %}
+                                    {{ "%.1f"|format(benign_percentage) }}% of total
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-danger text-white">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+                                <div class="stat-number text-danger">{{ prediction_stats.malignant_predictions or 0 }}</div>
+                                <div class="stat-label">Malignant Cases</div>
+                                <small class="text-danger">
+                                    {% set malignant_percentage = ((prediction_stats.malignant_predictions or 0) / ((prediction_stats.benign_predictions or 0) + (prediction_stats.malignant_predictions or 0) + (prediction_stats.normal_predictions or 0)) * 100) if ((prediction_stats.benign_predictions or 0) + (prediction_stats.malignant_predictions or 0) + (prediction_stats.normal_predictions or 0)) > 0 else 0 %}
+                                    {{ "%.1f"|format(malignant_percentage) }}% of total
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-secondary text-white">
+                                    <i class="bi bi-heart"></i>
+                                </div>
+                                <div class="stat-number text-secondary">{{ prediction_stats.normal_predictions or 0 }}</div>
+                                <div class="stat-label">Normal Cases</div>
+                                <small class="text-secondary">
+                                    {% set normal_percentage = ((prediction_stats.normal_predictions or 0) / ((prediction_stats.benign_predictions or 0) + (prediction_stats.malignant_predictions or 0) + (prediction_stats.normal_predictions or 0)) * 100) if ((prediction_stats.benign_predictions or 0) + (prediction_stats.malignant_predictions or 0) + (prediction_stats.normal_predictions or 0)) > 0 else 0 %}
+                                    {{ "%.1f"|format(normal_percentage) }}% of total
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Predictions Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="admin-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="h4 mb-0 text-dark">
+                            <i class="bi bi-clock-history me-2 text-info"></i>Recent Predictions
+                        </h3>
+                        <span class="badge-professional bg-primary">{{ recent_predictions|length }} records</span>
+                    </div>
+                    {% if recent_predictions %}
+                    <div class="table-responsive">
+                        <table class="table professional-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Type</th>
+                                    <th>Result</th>
+                                    <th>Confidence</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prediction in recent_predictions %}
+                                <tr>
+                                    <td class="fw-bold">#{{ prediction.id }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2">
+                                                <i class="bi bi-person text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">{{ prediction.user.username if prediction.user else 'Anonymous' }}</div>
+                                                <small class="text-muted">{{ prediction.user.email if prediction.user and prediction.user.email else 'No email' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if prediction.prediction_type == 'form' %}
+                                            <span class="badge-professional bg-info">
+                                                <i class="bi bi-ui-checks me-1"></i>Form
+                                            </span>
+                                        {% else %}
+                                            <span class="badge-professional bg-warning">
+                                                <i class="bi bi-image me-1"></i>Image
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if prediction.prediction_result == 'Benign' %}
+                                            <span class="badge-professional bg-success">
+                                                <i class="bi bi-shield-check me-1"></i>Benign
+                                            </span>
+                                        {% elif prediction.prediction_result == 'Malignant' %}
+                                            <span class="badge-professional bg-danger">
+                                                <i class="bi bi-exclamation-triangle me-1"></i>Malignant
+                                            </span>
+                                        {% else %}
+                                            <span class="badge-professional bg-secondary">
+                                                <i class="bi bi-heart me-1"></i>Normal
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                <div class="progress-bar 
+                                                    {% if prediction.confidence >= 0.8 %}bg-success
+                                                    {% elif prediction.confidence >= 0.6 %}bg-warning
+                                                    {% else %}bg-danger{% endif %}" 
+                                                    role="progressbar" 
+                                                    style="width: {{ prediction.confidence * 100 }}%"
+                                                    aria-valuenow="{{ prediction.confidence * 100 }}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                            <small class="text-muted fw-medium">{{ "%.1f"|format(prediction.confidence * 100) }}%</small>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <small class="text-muted">
+                                            {{ prediction.created_at.strftime('%b %d, %Y') }}<br>
+                                            {{ prediction.created_at.strftime('%H:%M:%S') }}
+                                        </small>
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" 
+                                                    onclick="viewPrediction({{ prediction.id }})" 
+                                                    title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            {% if not prediction.is_verified %}
+                                            <button type="button" class="btn btn-outline-success btn-sm" 
+                                                    onclick="verifyPrediction({{ prediction.id }})" 
+                                                    title="Verify Result">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                            {% else %}
+                                            <span class="badge bg-success" title="Verified by {{ prediction.verified_by }}">
+                                                <i class="bi bi-check-circle me-1"></i>Verified
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted mt-3">No predictions yet</h5>
+                        <p class="text-muted">Predictions will appear here as users interact with the system.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verification Modal -->
+<div class="modal fade" id="verifyModal" tabindex="-1" aria-labelledby="verifyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="verifyModalLabel">
+                    <i class="bi bi-check-circle me-2"></i>Verify Prediction
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="verifyForm">
+                <div class="modal-body">
+                    <input type="hidden" id="predictionId" name="prediction_id">
+                    <div class="mb-3">
+                        <label for="verifiedResult" class="form-label">Actual Diagnosis</label>
+                        <select class="form-select" id="verifiedResult" name="verified_result" required>
+                            <option value="">Select actual result...</option>
+                            <option value="Benign">Benign</option>
+                            <option value="Malignant">Malignant</option>
+                            <option value="Normal">Normal</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="doctorName" class="form-label">Doctor Name</label>
+                        <input type="text" class="form-control" id="doctorName" name="doctor_name" 
+                               value="{{ current_user.username }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i>Verify
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// View prediction details
+function viewPrediction(predictionId) {
+    // Implement view prediction functionality
+    console.log('Viewing prediction:', predictionId);
+    // You can add a modal or redirect to a detailed view
+}
+
+// Verify prediction
+function verifyPrediction(predictionId) {
+    document.getElementById('predictionId').value = predictionId;
+    const modal = new bootstrap.Modal(document.getElementById('verifyModal'));
+    modal.show();
+}
+
+// Handle verification form submission
+document.getElementById('verifyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const predictionId = formData.get('prediction_id');
+    
+    fetch(`/admin/verify-prediction/${predictionId}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show';
+            alert.innerHTML = `
+                <i class="bi bi-check-circle me-2"></i>Prediction verified successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.container-fluid').firstChild);
+            
+            // Close modal and reload page
+            bootstrap.Modal.getInstance(document.getElementById('verifyModal')).hide();
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            alert('Error verifying prediction: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error verifying prediction. Please try again.');
+    });
+});
+
+// Admin Panel JavaScript Functions
+function downloadReport() {
+    // Show loading state
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="loading-spinner me-2"></span>Downloading...';
+    btn.disabled = true;
+    
+    // Create a temporary link to trigger download
+    const link = document.createElement('a');
+    link.href = '/admin/export-data';
+    link.download = 'training_data_export.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Reset button state
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }, 2000);
+}
+
+function retrainModels() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="loading-spinner me-2"></span>Retraining...';
+    btn.disabled = true;
+    
+    fetch('/admin/retrain-models-api', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message);
+        } else {
+            showAlert('error', data.error || 'Retraining failed');
+        }
+    })
+    .catch(error => {
+        showAlert('error', 'Error during retraining: ' + error.message);
+    })
+    .finally(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+}
+
+function showStatistics() {
+    fetch('/admin/training-stats')
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            showAlert('error', data.error);
+            return;
+        }
+        
+        // Create modal with statistics
+        const modal = createStatsModal(data);
+        document.body.appendChild(modal);
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+        
+        // Remove modal when hidden
+        modal.addEventListener('hidden.bs.modal', () => {
+            document.body.removeChild(modal);
+        });
+    })
+    .catch(error => {
+        showAlert('error', 'Error loading statistics: ' + error.message);
+    });
+}
+
+function createStatsModal(stats) {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.innerHTML = `
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-graph-up me-2"></i>Training Statistics
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Model Accuracy</h6>
+                                    <h3 class="text-primary">${(stats.accuracy * 100).toFixed(2)}%</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Training Samples</h6>
+                                    <h3 class="text-success">${stats.training_samples || 0}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Last Training</h6>
+                                    <h6 class="text-info">${stats.last_training || 'Never'}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Model Version</h6>
+                                    <h6 class="text-warning">${stats.model_version || 'Unknown'}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    return modal;
+}
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-professional alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+// Auto-refresh data every 30 seconds
+setInterval(() => {
+    // You can implement auto-refresh here if needed
+}, 30000);
+</script>
+{% endblock %}

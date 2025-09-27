@@ -1,0 +1,157 @@
+/* Admin Dashboard Styles */
+
+/* Progress bar colors based on confidence */
+.progress-bar.bg-success {
+    background-color: #28a745 !important;
+}
+
+.progress-bar.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.progress-bar.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* Confidence bar styles */
+.confidence-bar {
+    transition: all 0.3s ease;
+}
+
+.confidence-bar.bg-success {
+    background-color: #28a745 !important;
+}
+
+.confidence-bar.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.confidence-bar.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* Admin dashboard specific styles */
+.admin-stats-card {
+    transition: transform 0.3s ease;
+}
+
+.admin-stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.admin-chart-container {
+    position: relative;
+    height: 300px;
+}
+
+.admin-table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.admin-verify-btn {
+    transition: all 0.3s ease;
+}
+
+.admin-verify-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Modal styles */
+.verify-modal .modal-header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.verify-modal .modal-content {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* Chart container improvements */
+.chart-container {
+    position: relative;
+    height: 200px;
+    margin: 20px 0;
+}
+
+/* Button improvements */
+.btn-admin-action {
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-admin-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Table improvements */
+.admin-table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.admin-table td {
+    vertical-align: middle;
+}
+
+/* Badge improvements */
+.badge-admin {
+    font-size: 0.85em;
+    padding: 0.5em 0.75em;
+    border-radius: 20px;
+}
+
+/* Card improvements */
+.card-admin {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.card-admin:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+/* Statistics cards */
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.stats-card .card-title {
+    color: rgba(255,255,255,0.9);
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.stats-card .card-value {
+    font-size: 2.5em;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .admin-chart-container {
+        height: 250px;
+    }
+    
+    .stats-card .card-value {
+        font-size: 2em;
+    }
+    
+    .btn-admin-action {
+        font-size: 0.9em;
+        padding: 0.5em 1em;
+    }
+}

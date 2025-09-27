@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breast Cancer Detection System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Enhanced Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('index') }}">
+                <div class="brand-icon me-2">
+                    <i class="bi bi-heart-pulse-fill"></i>
+                </div>
+                <div class="brand-text">
+                    <div class="brand-title">Breast Cancer Detection</div>
+                    <small class="brand-subtitle">AI-Powered Diagnosis</small>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- All navigation items moved to the right -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link nav-item-enhanced {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
+                            <i class="bi bi-house-door me-1"></i>Home
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-item-enhanced {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-item-enhanced {% if request.endpoint == 'form_predict' %}active{% endif %}" href="{{ url_for('form_predict') }}">
+                                <i class="bi bi-ui-checks me-1"></i>Form Prediction
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-item-enhanced {% if request.endpoint == 'image_predict' %}active{% endif %}" href="{{ url_for('image_predict') }}">
+                                <i class="bi bi-image me-1"></i>Image Prediction
+                            </a>
+                        </li>
+                        {% if current_user.is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-item-enhanced {% if request.endpoint == 'admin_dashboard' %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">
+                                <i class="bi bi-shield-check me-1"></i>Admin Panel
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar me-2">
+                                    <i class="bi bi-person-circle"></i>
+                                </div>
+                                <div class="user-info d-none d-md-block">
+                                    <div class="user-name">{{ current_user.username }}</div>
+                                    <div class="user-role">{{ 'Administrator' if current_user.is_admin else 'User' }}</div>
+                                </div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                                <li class="dropdown-header">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-avatar-large me-3">
+                                            <i class="bi bi-person-circle"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{ current_user.username }}</div>
+                                            <small class="text-muted">{{ current_user.email }}</small>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('profile') }}">
+                                        <div class="dropdown-item-content">
+                                            <i class="bi bi-person me-3"></i>
+                                            <div>
+                                                <div class="fw-medium">Profile</div>
+                                                <small class="text-muted">Manage your account</small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('my_predictions') }}">
+                                        <div class="dropdown-item-content">
+                                            <i class="bi bi-list-ul me-3"></i>
+                                            <div>
+                                                <div class="fw-medium">My Predictions</div>
+                                                <small class="text-muted">View your prediction history</small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item logout-item" href="{{ url_for('logout') }}">
+                                        <div class="dropdown-item-content">
+                                            <i class="bi bi-box-arrow-right me-3"></i>
+                                            <div>
+                                                <div class="fw-medium">Sign Out</div>
+                                                <small class="text-muted">End your session</small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-item-enhanced" href="{{ url_for('login') }}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-item-enhanced" href="{{ url_for('register') }}">
+                                <i class="bi bi-person-plus me-1"></i>Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer text-center py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5 class="text-white mb-3">
+                        <i class="bi bi-heart-pulse-fill me-2"></i>Breast Cancer Detection
+                    </h5>
+                    <p class="text-light">Advanced AI-powered breast cancer detection using state-of-the-art machine learning and deep learning models.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h6 class="text-white mb-3">Quick Links</h6>
+                    <div class="d-flex flex-column">
+                        <a href="{{ url_for('index') }}" class="text-light text-decoration-none mb-2">
+                            <i class="bi bi-house me-1"></i>Home
+                        </a>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard') }}" class="text-light text-decoration-none mb-2">
+                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                        </a>
+                        <a href="{{ url_for('form_predict') }}" class="text-light text-decoration-none mb-2">
+                            <i class="bi bi-ui-checks-grid me-1"></i>Form Prediction
+                        </a>
+                        <a href="{{ url_for('image_predict') }}" class="text-light text-decoration-none mb-2">
+                            <i class="bi bi-image me-1"></i>Image Analysis
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="text-light text-decoration-none mb-2">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                        </a>
+                        <a href="{{ url_for('register') }}" class="text-light text-decoration-none mb-2">
+                            <i class="bi bi-person-plus me-1"></i>Register
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h6 class="text-white mb-3">Technology</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-light text-dark">Machine Learning</span>
+                        <span class="badge bg-light text-dark">Deep Learning</span>
+                        <span class="badge bg-light text-dark">CNN</span>
+                        <span class="badge bg-light text-dark">Flask</span>
+                        <span class="badge bg-light text-dark">TensorFlow</span>
+                        <span class="badge bg-light text-dark">Python</span>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.2);">
+            <p class="mb-0 text-light">
+                <i class="bi bi-shield-check me-1"></i>
+                Breast Cancer Detection System &copy; 2025. For educational and research purposes only.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-navbar navbar navbar-expand-lg navbar-dark bg-primary fixed-bottom d-lg-none">
+        <div class="container-fluid">
+            <div class="navbar-nav w-100 d-flex justify-content-around">
+                <a class="nav-link text-center" href="{{ url_for('index') }}">
+                    <i class="bi bi-house-door d-block mb-1"></i>
+                    <small>Home</small>
+                </a>
+                <a class="nav-link text-center" href="{{ url_for('form_predict') }}">
+                    <i class="bi bi-ui-checks d-block mb-1"></i>
+                    <small>Form</small>
+                </a>
+                <a class="nav-link text-center" href="{{ url_for('image_predict') }}">
+                    <i class="bi bi-image d-block mb-1"></i>
+                    <small>Image</small>
+                </a>
+                {% if current_user.is_authenticated %}
+                <a class="nav-link text-center" href="{{ url_for('my_predictions') }}">
+                    <i class="bi bi-list-ul d-block mb-1"></i>
+                    <small>My Data</small>
+                </a>
+                <a class="nav-link text-center" href="{{ url_for('profile') }}">
+                    <i class="bi bi-person d-block mb-1"></i>
+                    <small>Profile</small>
+                </a>
+                {% else %}
+                <a class="nav-link text-center" href="{{ url_for('login') }}">
+                    <i class="bi bi-box-arrow-in-right d-block mb-1"></i>
+                    <small>Login</small>
+                </a>
+                <a class="nav-link text-center" href="{{ url_for('register') }}">
+                    <i class="bi bi-person-plus d-block mb-1"></i>
+                    <small>Register</small>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <script>
+    // Professional dropdown functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize all dropdowns with enhanced options
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+            return new bootstrap.Dropdown(dropdownToggleEl, {
+                offset: [0, 8],
+                boundary: 'viewport',
+                display: 'dynamic'
+            });
+        });
+        
+        // Enhanced dropdown interactions
+        var userDropdown = document.getElementById('navbarDropdown');
+        var dropdownMenu = userDropdown.nextElementSibling;
+        
+        if (userDropdown && dropdownMenu) {
+            // Add professional hover effects
+            userDropdown.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-1px)';
+                this.style.transition = 'all 0.2s ease';
+            });
+            
+            userDropdown.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+            
+            // Add click animation
+            userDropdown.addEventListener('click', function() {
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 100);
+            });
+            
+            // Enhanced dropdown item interactions
+            var dropdownItems = dropdownMenu.querySelectorAll('.dropdown-item');
+            dropdownItems.forEach(function(item) {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(4px)';
+                    this.style.transition = 'all 0.2s ease';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+            
+            // Special handling for logout
+            var logoutItem = dropdownMenu.querySelector('.logout-item');
+            if (logoutItem) {
+                logoutItem.addEventListener('click', function(e) {
+                    // Add confirmation for logout
+                    if (!confirm('Are you sure you want to sign out?')) {
+                        e.preventDefault();
+                        return false;
+                    }
+                    
+                    // Add loading state
+                    var content = this.querySelector('.dropdown-item-content');
+                    var originalContent = content.innerHTML;
+                    content.innerHTML = '<i class="bi bi-hourglass-split me-3"></i><div><div class="fw-medium">Signing out...</div><small class="text-muted">Please wait</small></div>';
+                    
+                    // Add pulse animation
+                    this.style.animation = 'pulse 1s infinite';
+                });
+            }
+        }
+        
+        // Add pulse animation keyframes
+        var style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { opacity: 1; }
+                50% { opacity: 0.7; }
+                100% { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Professional dropdown show/hide events
+        dropdownMenu.addEventListener('show.bs.dropdown', function() {
+            this.style.opacity = '0';
+            this.style.transform = 'translateY(-10px) scale(0.95)';
+        });
+        
+        dropdownMenu.addEventListener('shown.bs.dropdown', function() {
+            this.style.opacity = '1';
+            this.style.transform = 'translateY(0) scale(1)';
+            this.style.transition = 'all 0.2s ease-out';
+        });
+        
+        dropdownMenu.addEventListener('hide.bs.dropdown', function() {
+            this.style.opacity = '0';
+            this.style.transform = 'translateY(-10px) scale(0.95)';
+            this.style.transition = 'all 0.15s ease-in';
+        });
+        
+        // Enhanced navigation active state management
+        function updateActiveStates() {
+            const currentPath = window.location.pathname;
+            const allNavLinks = document.querySelectorAll('.nav-link');
+            
+            allNavLinks.forEach(link => {
+                link.classList.remove('active');
+                
+                const href = link.getAttribute('href');
+                if (href && currentPath.includes(href.replace('/', ''))) {
+                    link.classList.add('active');
+                } else if (href === '/' && currentPath === '/') {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        // Update active states on page load
+        updateActiveStates();
+        
+        // Update active states when navigating
+        window.addEventListener('popstate', updateActiveStates);
+        
+        // Add click handlers for navigation links
+        const navLinks = document.querySelectorAll('.nav-link:not(.dropdown-toggle)');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                // Remove active class from all links
+                navLinks.forEach(l => l.classList.remove('active'));
+                // Add active class to clicked link
+                this.classList.add('active');
+            });
+        });
+        
+        // Bottom navigation specific functionality
+        const bottomNavLinks = document.querySelectorAll('.bottom-navbar .nav-link');
+        bottomNavLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                // Remove active class from all bottom nav links
+                bottomNavLinks.forEach(l => l.classList.remove('active'));
+                // Add active class to clicked link
+                this.classList.add('active');
+            });
+        });
+        
+        // Sync active states between top and bottom navigation
+        function syncActiveStates() {
+            const topNavLinks = document.querySelectorAll('.navbar .nav-link:not(.dropdown-toggle)');
+            const bottomNavLinks = document.querySelectorAll('.bottom-navbar .nav-link');
+            
+            topNavLinks.forEach(topLink => {
+                if (topLink.classList.contains('active')) {
+                    const href = topLink.getAttribute('href');
+                    bottomNavLinks.forEach(bottomLink => {
+                        if (bottomLink.getAttribute('href') === href) {
+                            bottomLink.classList.add('active');
+                        } else {
+                            bottomLink.classList.remove('active');
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Sync on page load
+        syncActiveStates();
+        
+        // Add smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    });
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+        }
+        
+        .bg-animated {
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .shadow-glow {
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .lift-on-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .lift-on-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .card {
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .badge {
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .progress {
+            border-radius: 10px;
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        
+        .modal-header {
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+        }
+        
+        .input-group-text {
+            border-radius: 10px 0 0 10px;
+            border: 2px solid #e9ecef;
+            background-color: #f8f9fa;
+        }
+        
+        .input-group .form-control {
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .dropdown-menu {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .dropdown-item {
+            border-radius: 5px;
+            margin: 2px 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+        
+        .navbar {
+            backdrop-filter: blur(15px);
+            background: rgba(102, 126, 234, 0.9) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            color: white;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        .btn-success:hover {
+            background: linear-gradient(135deg, #3d8bfe 0%, #00d4fe 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+        }
+        
+        .btn-info:hover {
+            background: linear-gradient(135deg, #ee7bf9 0%, #f3455a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border: none;
+            color: #8b4513;
+            box-shadow: 0 4px 15px rgba(252, 182, 159, 0.3);
+        }
+        
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #ffe4b5 0%, #fba085 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(252, 182, 159, 0.4);
+        }
+        
+        .badge {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .table {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .alert {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
+            border-color: rgba(79, 172, 254, 0.3);
+            color: #0c5460;
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
+            border-color: rgba(245, 87, 108, 0.3);
+            color: #721c24;
+        }
+        
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(255, 236, 210, 0.3) 0%, rgba(252, 182, 159, 0.3) 100%);
+            border-color: rgba(252, 182, 159, 0.5);
+            color: #8b4513;
+        }
+        
+        .alert-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-color: rgba(102, 126, 234, 0.3);
+            color: #0c5460;
+        }
+        
+        /* Additional improvements */
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-1px);
+        }
+        
+        /* Professional Dropdown Styling */
+        .user-dropdown {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            z-index: 1050;
+            min-width: 280px;
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+            animation: dropdownFadeIn 0.2s ease-out;
+        }
+        
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .dropdown-header {
+            padding: 1rem 1.25rem 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: -0.5rem -0.5rem 0.5rem -0.5rem;
+            border-radius: 12px 12px 0 0;
+            color: white;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .user-avatar-large {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .user-info {
+            text-align: left;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: white;
+            line-height: 1.2;
+        }
+        
+        .user-role {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.2;
+        }
+        
+        .dropdown-item {
+            padding: 0;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item-content {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            color: #495057;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover .dropdown-item-content {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #212529;
+            transform: translateX(4px);
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            color: #6c757d;
+            transition: color 0.2s ease;
+        }
+        
+        .dropdown-item:hover i {
+            color: #667eea;
+        }
+        
+        .dropdown-item .fw-medium {
+            font-weight: 500;
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+        
+        .dropdown-item small {
+            font-size: 0.75rem;
+            line-height: 1.2;
+        }
+        
+        .logout-item .dropdown-item-content {
+            color: #dc3545;
+        }
+        
+        .logout-item:hover .dropdown-item-content {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+            color: #c82333;
+        }
+        
+        .logout-item i {
+            color: #dc3545;
+        }
+        
+        .logout-item:hover i {
+            color: #c82333;
+        }
+        
+        .dropdown-divider {
+            margin: 0.5rem 0;
+            border-color: rgba(0, 0, 0, 0.08);
+        }
+        
+        .navbar-nav .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            left: auto;
+        }
+        
+        /* Enhanced Navigation Styling */
+        .navbar-brand {
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .brand-text {
+            text-align: left;
+        }
+        
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+        }
+        
+        .brand-subtitle {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.2;
+        }
+        
+        .nav-item-enhanced {
+            position: relative;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-item-enhanced:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .nav-item-enhanced.active {
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+        
+        .nav-item-enhanced.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background: white;
+            border-radius: 1px;
+        }
+        
+        .nav-item-enhanced i {
+            font-size: 1.1rem;
+        }
+        
+        /* Bottom Navigation Styling */
+        .bottom-navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.25rem 0;
+            z-index: 1040;
+            height: 60px;
+        }
+        
+        .bottom-navbar .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            min-width: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+        }
+        
+        .bottom-navbar .nav-link:hover {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .bottom-navbar .nav-link.active {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+        
+        .bottom-navbar .nav-link i {
+            font-size: 1rem;
+            margin-bottom: 0.125rem;
+        }
+        
+        .bottom-navbar .nav-link small {
+            font-size: 0.6rem;
+            font-weight: 500;
+            line-height: 1;
+        }
+        
+        /* Add padding to body for bottom navigation */
+        body {
+            padding-bottom: 60px;
+        }
+        
+        @media (min-width: 992px) {
+            body {
+                padding-bottom: 0;
+            }
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .user-dropdown {
+                min-width: 260px;
+            }
+            
+            .dropdown-header {
+                padding: 0.75rem 1rem 0.5rem;
+            }
+            
+            .dropdown-item-content {
+                padding: 0.625rem 1rem;
+            }
+            
+            .brand-text {
+                display: none;
+            }
+            
+            .brand-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1.25rem;
+            }
+            
+            /* Mobile bottom navigation optimizations */
+            .bottom-navbar {
+                height: 55px;
+                padding: 0.2rem 0;
+            }
+            
+            .bottom-navbar .nav-link {
+                padding: 0.2rem 0.4rem;
+                height: 45px;
+                min-width: 45px;
+            }
+            
+            .bottom-navbar .nav-link i {
+                font-size: 0.9rem;
+                margin-bottom: 0.1rem;
+            }
+            
+            .bottom-navbar .nav-link small {
+                font-size: 0.55rem;
+            }
+            
+            body {
+                padding-bottom: 55px;
+            }
+        }
+        
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            .bottom-navbar {
+                height: 50px;
+                padding: 0.15rem 0;
+            }
+            
+            .bottom-navbar .nav-link {
+                padding: 0.15rem 0.3rem;
+                height: 40px;
+                min-width: 40px;
+            }
+            
+            .bottom-navbar .nav-link i {
+                font-size: 0.8rem;
+                margin-bottom: 0.05rem;
+            }
+            
+            .bottom-navbar .nav-link small {
+                font-size: 0.5rem;
+            }
+            
+            body {
+                padding-bottom: 50px;
+            }
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .text-muted {
+            color: rgba(108, 117, 125, 0.8) !important;
+        }
+        
+        .text-primary {
+            color: #667eea !important;
+        }
+        
+        .text-success {
+            color: #4facfe !important;
+        }
+        
+        .text-info {
+            color: #f093fb !important;
+        }
+        
+        .text-warning {
+            color: #fcb69f !important;
+        }
+        
+        .text-danger {
+            color: #f5576c !important;
+        }
+    </style>
+</body>
+</html>

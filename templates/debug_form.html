@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Form Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin: 10px 0; }
+        input { padding: 5px; margin: 5px; width: 200px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .result { margin: 20px 0; padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; }
+    </style>
+</head>
+<body>
+    <h1>Debug Form Test</h1>
+    <p>This is a simple test form to debug the prediction issue.</p>
+    
+    <form action="/predict-form" method="post">
+        <div class="form-group">
+            <label>Mean Radius:</label>
+            <input type="number" name="mean radius" value="12.5" step="any">
+        </div>
+        <div class="form-group">
+            <label>Mean Texture:</label>
+            <input type="number" name="mean texture" value="15.2" step="any">
+        </div>
+        <div class="form-group">
+            <label>Mean Perimeter:</label>
+            <input type="number" name="mean perimeter" value="80.5" step="any">
+        </div>
+        <div class="form-group">
+            <label>Mean Area:</label>
+            <input type="number" name="mean area" value="520.1" step="any">
+        </div>
+        <div class="form-group">
+            <label>Mean Smoothness:</label>
+            <input type="number" name="mean smoothness" value="0.095" step="any">
+        </div>
+        
+        <!-- Add more fields with 0 values for the remaining features -->
+        <div class="form-group">
+            <label>Mean Compactness:</label>
+            <input type="number" name="mean compactness" value="0.085" step="any">
+        </div>
+        <div class="form-group">
+            <label>Mean Concavity:</label>
+            <input type="number" name="mean concavity" value="0.025" step="any">
+        </div>
+        <div class="form-group">
+            <label>Mean Concave Points:</label>
+            <input type="number" name="mean concave points" value="0.015" step="any">
+        </div>
+        <div class="form-group">
+            <label>Mean Symmetry:</label>
+            <input type="number" name="mean symmetry" value="0.185" step="any">
+        </div>
+        <div class="form-group">
+            <label>Mean Fractal Dimension:</label>
+            <input type="number" name="mean fractal dimension" value="0.065" step="any">
+        </div>
+        
+        <!-- Add remaining fields with 0 values -->
+        <input type="hidden" name="radius error" value="0">
+        <input type="hidden" name="texture error" value="0">
+        <input type="hidden" name="perimeter error" value="0">
+        <input type="hidden" name="area error" value="0">
+        <input type="hidden" name="smoothness error" value="0">
+        <input type="hidden" name="compactness error" value="0">
+        <input type="hidden" name="concavity error" value="0">
+        <input type="hidden" name="concave points error" value="0">
+        <input type="hidden" name="symmetry error" value="0">
+        <input type="hidden" name="fractal dimension error" value="0">
+        <input type="hidden" name="worst radius" value="0">
+        <input type="hidden" name="worst texture" value="0">
+        <input type="hidden" name="worst perimeter" value="0">
+        <input type="hidden" name="worst area" value="0">
+        <input type="hidden" name="worst smoothness" value="0">
+        <input type="hidden" name="worst compactness" value="0">
+        <input type="hidden" name="worst concavity" value="0">
+        <input type="hidden" name="worst concave points" value="0">
+        <input type="hidden" name="worst symmetry" value="0">
+        <input type="hidden" name="worst fractal dimension" value="0">
+        
+        <button type="submit">Test Prediction</button>
+    </form>
+    
+    <div class="result">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Click the "Test Prediction" button above</li>
+            <li>Check the browser's developer console (F12) for any JavaScript errors</li>
+            <li>Check the browser's Network tab to see if the request is being sent</li>
+            <li>Look at the Flask server terminal for debug output</li>
+        </ol>
+    </div>
+    
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            console.log('Debug form submitted');
+            console.log('Form action:', this.action);
+            console.log('Form method:', this.method);
+            
+            const formData = new FormData(this);
+            console.log('Form data:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+        });
+    </script>
+</body>
+</html>

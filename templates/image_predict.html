@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow glass fade-in">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0"><i class="bi bi-image me-2"></i>Image-Based Prediction</h3>
+                </div>
+                <div class="card-body">
+                    <form action="/predict-image" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Select Image</label>
+                            <div id="dropZone" class="drop-zone mb-3">
+                                <div class="drop-zone__prompt">
+                                    <i class="bi bi-cloud-arrow-up fs-3 d-block mb-2"></i>
+                                    Drag & drop an image here or click to browse
+                                </div>
+                                <input id="fileInput" type="file" name="file" accept="image/*" class="drop-zone__input" required>
+                            </div>
+                            <div id="fileName" class="mt-2 text-muted d-none">
+                                <i class="bi bi-file-image me-2"></i>
+                                <span id="fileNameText"></span>
+                            </div>
+                            <img id="imagePreview" class="img-fluid rounded d-none mt-3" alt="Preview">
+                        </div>
+                        <div class="d-flex gap-3">
+                            <button type="button" class="btn btn-primary btn-lg" id="analyzeBtn" onclick="submitImage()">
+                                <i class="bi bi-search-heart me-2"></i>Analyze Image
+                            </button>
+                            <a href="/" class="btn btn-outline-primary btn-lg">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const fileNameText = document.getElementById('fileNameText');
+    const imagePreview = document.getElementById('imagePreview');
+    const dropZone = document.getElementById('dropZone');
+    
+    // Handle file selection
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Show file name
+            fileNameText.textContent = file.name;
+            fileName.classList.remove('d-none');
+            
+            // Show image preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Handle drag and drop
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+    
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+    });
+    
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                fileInput.files = files;
+                
+                // Show file name
+                fileNameText.textContent = file.name;
+                fileName.classList.remove('d-none');
+                
+                // Show image preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    });
+    
+    // Click to select file
+    dropZone.addEventListener('click', function() {
+        fileInput.click();
+    });
+});
+
+function submitImage() {
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const fileInput = document.getElementById('fileInput');
+    
+    if (!fileInput.files[0]) {
+        alert('Please select an image first!');
+        return;
+    }
+    
+    // Show loading state
+    analyzeBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Analyzing...';
+    analyzeBtn.disabled = true;
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    
+    // Submit form
+    fetch('/predict-image', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            return response.text();
+        }
+    })
+    .then(html => {
+        if (html) {
+            document.body.innerHTML = html;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        analyzeBtn.innerHTML = '<i class="bi bi-search-heart me-2"></i>Analyze Image';
+        analyzeBtn.disabled = false;
+        alert('Analysis failed. Please try again.');
+    });
+}
+</script>
+
+<style>
+.drop-zone {
+    border: 2px dashed #667eea;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.drop-zone:hover {
+    border-color: #764ba2;
+    background: rgba(118, 75, 162, 0.1);
+}
+
+.drop-zone.drag-over {
+    border-color: #764ba2;
+    background: rgba(118, 75, 162, 0.2);
+    transform: scale(1.02);
+}
+
+.drop-zone__input {
+    display: none;
+}
+
+.drop-zone__prompt {
+    color: #667eea;
+    font-weight: 500;
+}
+
+#fileName {
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 8px;
+    padding: 10px 15px;
+    border-left: 4px solid #667eea;
+}
+
+#imagePreview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+</style>
+{% endblock %}

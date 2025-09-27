@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction Results</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 20px 0; padding: 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .danger { background: #f8d7da; border-color: #f5c6cb; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; }
+    </style>
+</head>
+<body>
+    <h1>Prediction Results</h1>
+    
+    <div class="result {% if result.prediction == 'Benign' %}success{% elif result.prediction == 'Malignant' %}danger{% else %}warning{% endif %}">
+        <h2>
+            Prediction: 
+            {% if result.prediction == 'Benign' %}
+                BENIGN (B)
+            {% elif result.prediction == 'Malignant' %}
+                MALIGNANT (M)
+            {% elif result.prediction == 'Normal' %}
+                NORMAL (N)
+            {% else %}
+                {{ result.prediction }}
+            {% endif %}
+        </h2>
+        <div style="margin: 10px 0;">
+            {% if result.prediction == 'Benign' %}
+                <span style="background: #28a745; color: white; padding: 8px 16px; border-radius: 5px; font-size: 18px; font-weight: bold;">B</span>
+            {% elif result.prediction == 'Malignant' %}
+                <span style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 5px; font-size: 18px; font-weight: bold;">M</span>
+            {% elif result.prediction == 'Normal' %}
+                <span style="background: #ffc107; color: black; padding: 8px 16px; border-radius: 5px; font-size: 18px; font-weight: bold;">N</span>
+            {% endif %}
+        </div>
+        <p><strong>Confidence:</strong> {{ "%.1f"|format(result.confidence * 100) }}%</p>
+        <p><strong>Type:</strong> {{ result.input_type }}</p>
+        {% if result.prediction_id %}
+        <p><strong>Prediction ID:</strong> {{ result.prediction_id }}</p>
+        {% endif %}
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <a href="/form-predict" style="margin-right: 10px;">Try Again</a>
+        <a href="/">Back to Home</a>
+    </div>
+    
+    <div style="margin-top: 20px; padding: 10px; background: #e9ecef; border-radius: 5px;">
+        <h3>Debug Information:</h3>
+        <pre>{{ result }}</pre>
+    </div>
+</body>
+</html>

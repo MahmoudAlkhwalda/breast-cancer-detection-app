@@ -1,0 +1,760 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+.learning-dashboard {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.learning-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.learning-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.875rem;
+}
+
+.control-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    min-height: 60px;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.control-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+.control-btn i {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+.control-btn span {
+    font-size: 1rem;
+}
+
+.control-btn small {
+    display: block;
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.status-active {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.status-inactive {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.status-pending {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.explanation-box {
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.explanation-box h6 {
+    color: #667eea;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.explanation-box p {
+    color: #6c757d;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.alert-professional {
+    border: none;
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-professional {
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-professional:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.progress-ring {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(#28a745 0deg, #28a745 var(--progress), #e9ecef var(--progress));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.progress-ring-inner {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #28a745;
+}
+</style>
+
+<div class="learning-dashboard">
+    <div class="container-fluid">
+        <!-- Header Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="learning-card p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h2 mb-2 text-dark">
+                                <i class="bi bi-brain me-3 text-primary"></i>AI Learning Dashboard
+                            </h1>
+                            <p class="text-muted mb-0 fs-5">Monitor and control the AI learning system</p>
+                        </div>
+                        <div class="text-end">
+                            <a href="/admin" class="btn btn-professional btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Admin
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="learning-card p-4">
+                    <h3 class="h4 mb-4 text-dark">
+                        <i class="bi bi-activity me-2"></i>System Status
+                    </h3>
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-success text-white">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="stat-number text-success" id="learningStatus">Active</div>
+                                <div class="stat-label">Learning Status</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-info text-white">
+                                    <i class="bi bi-cpu"></i>
+                                </div>
+                                <div class="stat-number text-info" id="schedulerStatus">Running</div>
+                                <div class="stat-label">Scheduler</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-warning text-white">
+                                    <i class="bi bi-clock"></i>
+                                </div>
+                                <div class="stat-number text-warning" id="lastUpdate">2h ago</div>
+                                <div class="stat-label">Last Update</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-primary text-white">
+                                    <i class="bi bi-graph-up"></i>
+                                </div>
+                                <div class="stat-number text-primary" id="accuracy">94.2%</div>
+                                <div class="stat-label">Accuracy</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Statistics -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="learning-card p-4">
+                    <h3 class="h4 mb-4 text-dark">
+                        <i class="bi bi-bar-chart me-2"></i>Learning Statistics
+                    </h3>
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-primary text-white">
+                                    <i class="bi bi-graph-up"></i>
+                                </div>
+                                <div class="stat-number text-primary">{{ learning_stats.learning_stats.total_predictions or 0 }}</div>
+                                <div class="stat-label">Total Predictions</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-success text-white">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="stat-number text-success">{{ learning_stats.learning_stats.verified_predictions or 0 }}</div>
+                                <div class="stat-label">Verified Predictions</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-info text-white">
+                                    <i class="bi bi-chat-dots"></i>
+                                </div>
+                                <div class="stat-number text-info">{{ learning_stats.feedback_stats.user_feedback_count or 0 }}</div>
+                                <div class="stat-label">User Feedback</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-warning text-white">
+                                    <i class="bi bi-cpu"></i>
+                                </div>
+                                <div class="stat-number text-warning">{{ learning_stats.learning_stats.active_models or 0 }}</div>
+                                <div class="stat-label">Active Models</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Controls -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="learning-card p-4">
+                    <h3 class="h4 mb-4 text-dark">
+                        <i class="bi bi-gear me-2"></i>Learning Controls
+                    </h3>
+                    
+                    <!-- Manual Learning Section -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="explanation-box">
+                                <h6><i class="bi bi-play-circle me-2"></i>Manual Learning</h6>
+                                <p>Trigger immediate learning from available data. This will retrain the models with new data and improve accuracy.</p>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="control-btn" onclick="triggerLearning('form')">
+                                    <i class="bi bi-ui-checks"></i>
+                                    <span>Learn from Form Data</span>
+                                    <small>Retrain using form predictions</small>
+                                </button>
+                                <button class="control-btn" onclick="triggerLearning('image')">
+                                    <i class="bi bi-image"></i>
+                                    <span>Learn from Image Data</span>
+                                    <small>Retrain using image predictions</small>
+                                </button>
+                                <button class="control-btn" onclick="triggerLearning('all')">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                    <span>Learn from All Data</span>
+                                    <small>Retrain using all available data</small>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Scheduler Control Section -->
+                        <div class="col-md-6">
+                            <div class="explanation-box">
+                                <h6><i class="bi bi-sliders me-2"></i>Scheduler Control</h6>
+                                <p>Manage automatic learning schedule. The scheduler runs learning tasks automatically at set intervals.</p>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <button class="control-btn" onclick="controlScheduler('start')">
+                                            <i class="bi bi-play"></i>
+                                            <span>Start Scheduler</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="control-btn" onclick="controlScheduler('stop')">
+                                            <i class="bi bi-stop"></i>
+                                            <span>Stop Scheduler</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <button class="control-btn" onclick="controlScheduler('enable')">
+                                            <i class="bi bi-check-circle"></i>
+                                            <span>Enable Auto-Learning</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="control-btn" onclick="controlScheduler('disable')">
+                                            <i class="bi bi-x-circle"></i>
+                                            <span>Disable Auto-Learning</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Statistics -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="learning-card p-4">
+                    <h3 class="h4 mb-4 text-dark">
+                        <i class="bi bi-pie-chart me-2"></i>Feedback Analysis
+                    </h3>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-success text-white">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="stat-number text-success">{{ learning_stats.feedback_stats.correct_feedback or 0 }}</div>
+                                <div class="stat-label">Correct Feedback</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-danger text-white">
+                                    <i class="bi bi-x-circle"></i>
+                                </div>
+                                <div class="stat-number text-danger">{{ learning_stats.feedback_stats.incorrect_feedback or 0 }}</div>
+                                <div class="stat-label">Incorrect Feedback</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-warning text-white">
+                                    <i class="bi bi-question-circle"></i>
+                                </div>
+                                <div class="stat-number text-warning">{{ learning_stats.feedback_stats.uncertain_feedback or 0 }}</div>
+                                <div class="stat-label">Uncertain Feedback</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Predictions Needing Feedback -->
+        <div class="row">
+            <div class="col-12">
+                <div class="learning-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="h4 mb-0 text-dark">
+                            <i class="bi bi-clock-history me-2 text-info"></i>Predictions Needing Feedback
+                        </h3>
+                        <span class="badge bg-warning px-3 py-2" id="pendingCount">0 pending</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Type</th>
+                                    <th>Prediction</th>
+                                    <th>Confidence</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="predictionsTable">
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                                        <h5 class="text-muted mt-3">Loading predictions...</h5>
+                                        <p class="text-muted">Please wait while we fetch the data.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">
+                    <i class="bi bi-chat-dots me-2"></i>Provide Feedback
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="feedbackForm">
+                    <input type="hidden" id="predictionId" name="prediction_id">
+                    <div class="mb-3">
+                        <label for="feedback_type" class="form-label">Feedback Type</label>
+                        <select class="form-select" id="feedback_type" name="feedback_type" required>
+                            <option value="">Select feedback type</option>
+                            <option value="correct">Correct Prediction</option>
+                            <option value="incorrect">Incorrect Prediction</option>
+                            <option value="uncertain">Uncertain/Needs Review</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedback_text" class="form-label">Additional Comments</label>
+                        <textarea class="form-control" id="feedback_text" name="feedback_text" rows="3" placeholder="Optional: Add any additional comments about this prediction"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load predictions on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadPredictions();
+    loadSystemStatus();
+});
+
+// Load system status
+function loadSystemStatus() {
+    fetch('/admin/scheduler-control', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'status' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.status) {
+            document.getElementById('schedulerStatus').textContent = data.status.running ? 'Running' : 'Stopped';
+            document.getElementById('learningStatus').textContent = data.status.enabled ? 'Active' : 'Inactive';
+        }
+    })
+    .catch(error => {
+        console.error('Error loading system status:', error);
+    });
+}
+
+// Load predictions needing feedback
+function loadPredictions() {
+    fetch('/admin/predictions-needing-feedback')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displayPredictions(data.predictions);
+        } else {
+            showError('Error loading predictions: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Error loading predictions. Please try again.');
+    });
+}
+
+// Display predictions in table
+function displayPredictions(predictions) {
+    const tbody = document.getElementById('predictionsTable');
+    const pendingCount = document.getElementById('pendingCount');
+    
+    pendingCount.textContent = `${predictions.length} pending`;
+    
+    if (predictions.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-5">
+                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                    <h5 class="text-success mt-3">All caught up!</h5>
+                    <p class="text-muted">No predictions need feedback at the moment.</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = predictions.map(pred => `
+        <tr>
+            <td class="fw-bold">#${pred.id}</td>
+            <td>
+                <span class="badge bg-${pred.prediction_type === 'form' ? 'info' : 'primary'}">
+                    ${pred.prediction_type === 'form' ? 'Form' : 'Image'}
+                </span>
+            </td>
+            <td>
+                <span class="badge bg-${pred.predicted_class === 'benign' ? 'success' : pred.predicted_class === 'malignant' ? 'danger' : 'secondary'}">
+                    ${pred.predicted_class}
+                </span>
+            </td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                        <div class="progress-bar bg-${pred.confidence >= 0.8 ? 'success' : pred.confidence >= 0.6 ? 'warning' : 'danger'}" 
+                             style="width: ${pred.confidence * 100}%"></div>
+                    </div>
+                    <small class="text-muted">${(pred.confidence * 100).toFixed(1)}%</small>
+                </div>
+            </td>
+            <td class="text-muted">${pred.created_at}</td>
+            <td>
+                <button class="btn btn-professional btn-outline-primary btn-sm" onclick="provideFeedback(${pred.id})">
+                    <i class="bi bi-chat-dots me-1"></i>Feedback
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Trigger learning
+function triggerLearning(type) {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    button.innerHTML = '<span class="loading-spinner me-2"></span>Learning...';
+    button.disabled = true;
+    
+    fetch('/admin/trigger-learning', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ learning_type: type })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', 'Learning triggered successfully!');
+            loadSystemStatus(); // Refresh status
+        } else {
+            showAlert('danger', 'Error: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', 'Error triggering learning. Please try again.');
+    })
+    .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+
+// Control scheduler
+function controlScheduler(action) {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    button.innerHTML = '<span class="loading-spinner me-2"></span>Processing...';
+    button.disabled = true;
+    
+    fetch('/admin/scheduler-control', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: action })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message || 'Scheduler control successful!');
+            loadSystemStatus(); // Refresh status
+        } else {
+            showAlert('danger', 'Error: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', 'Error controlling scheduler. Please try again.');
+    })
+    .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+
+// Provide feedback
+function provideFeedback(predictionId) {
+    document.getElementById('predictionId').value = predictionId;
+    const modal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+    modal.show();
+}
+
+// Submit feedback
+function submitFeedback() {
+    const form = document.getElementById('feedbackForm');
+    const formData = new FormData(form);
+    const predictionId = formData.get('prediction_id');
+    
+    fetch(`/admin/submit-feedback/${predictionId}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', 'Feedback submitted successfully!');
+            bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+            loadPredictions(); // Reload the table
+        } else {
+            showAlert('danger', 'Error: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', 'Error submitting feedback. Please try again.');
+    });
+}
+
+// Show alert
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-professional alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+// Show error
+function showError(message) {
+    const tbody = document.getElementById('predictionsTable');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="6" class="text-center py-5">
+                <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                <h5 class="text-danger mt-3">Error Loading Data</h5>
+                <p class="text-muted">${message}</p>
+                <button class="btn btn-professional btn-outline-primary" onclick="loadPredictions()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Try Again
+                </button>
+            </td>
+        </tr>
+    `;
+}
+
+// Auto-refresh every 30 seconds
+setInterval(() => {
+    loadPredictions();
+    loadSystemStatus();
+}, 30000);
+</script>
+{% endblock %}
