@@ -28,22 +28,14 @@ ENV/
 env.bak/
 venv.bak/
 
+# Flask
+instance/
+.webassets-cache
+
 # Database
 *.db
+*.sqlite
 *.sqlite3
-instance/
-breast_cancer_app.db
-
-# Uploads and Data
-uploads/
-data/
-static/uploads/
-
-# Models (keep structure but ignore large files)
-models/*.h5
-models/*.pkl
-models/*.joblib
-!models/.gitkeep
 
 # IDE
 .vscode/
@@ -61,6 +53,21 @@ models/*.joblib
 ehthumbs.db
 Thumbs.db
 
+# Logs
+*.log
+
+# Model files (too large for git)
+models/*.h5
+models/*.pkl
+models/*.joblib
+
+# Data files (too large for git)
+data/
+uploads/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
 # Environment variables
 .env
 .env.local
@@ -68,72 +75,6 @@ Thumbs.db
 .env.test.local
 .env.production.local
 
-# Logs
-*.log
-logs/
-
 # Temporary files
-temp/
-tmp/
 *.tmp
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pytest
-.pytest_cache/
-
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-
-# Flask
-instance/
-.webassets-cache
-
-# Scrapy
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+*.temp

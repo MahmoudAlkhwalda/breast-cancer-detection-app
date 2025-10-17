@@ -26,7 +26,7 @@ def export_database_to_csv():
         if users_data:
             df_users = pd.DataFrame(users_data)
             df_users.to_csv('database_export_users.csv', index=False)
-            print("✅ Users exported to database_export_users.csv")
+            print("Users exported to database_export_users.csv")
         
         # Export predictions
         predictions = Prediction.query.all()
@@ -46,7 +46,7 @@ def export_database_to_csv():
         if pred_data:
             df_pred = pd.DataFrame(pred_data)
             df_pred.to_csv('database_export_predictions.csv', index=False)
-            print("✅ Predictions exported to database_export_predictions.csv")
+            print("Predictions exported to database_export_predictions.csv")
 
 def view_database_schema():
     """View database schema"""
@@ -78,7 +78,7 @@ def view_database_schema():
         
         conn.close()
     else:
-        print("❌ Database file not found!")
+        print("Database file not found!")
 
 def backup_database():
     """Create database backup"""
@@ -90,14 +90,14 @@ def backup_database():
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         backup_path = f'backup_breast_cancer_app_{timestamp}.db'
         shutil.copy2(db_path, backup_path)
-        print(f"✅ Database backed up to: {backup_path}")
+        print(f"Database backed up to: {backup_path}")
     else:
-        print("❌ Database file not found!")
+        print("Database file not found!")
 
 def clear_old_data():
     """Clear old data (be careful!)"""
     with app.app_context():
-        print("⚠️  WARNING: This will clear old data!")
+        print(" WARNING: This will clear old data!")
         print("Available options:")
         print("1. Clear old predictions (older than 30 days)")
         print("2. Clear old system logs (older than 7 days)")
@@ -113,7 +113,7 @@ def clear_old_data():
             for pred in old_predictions:
                 db.session.delete(pred)
             db.session.commit()
-            print(f"✅ Cleared {len(old_predictions)} old predictions")
+            print(f"Cleared {len(old_predictions)} old predictions")
             
         elif choice == '2':
             from datetime import datetime, timedelta
@@ -122,22 +122,22 @@ def clear_old_data():
             for log in old_logs:
                 db.session.delete(log)
             db.session.commit()
-            print(f"✅ Cleared {len(old_logs)} old logs")
+            print(f"Cleared {len(old_logs)} old logs")
             
         elif choice == '3':
             non_admin_users = User.query.filter_by(is_admin=False).all()
             for user in non_admin_users:
                 db.session.delete(user)
             db.session.commit()
-            print(f"✅ Cleared {len(non_admin_users)} non-admin users")
+            print(f"Cleared {len(non_admin_users)} non-admin users")
             
         elif choice == '4':
-            print("❌ Option 4 is too dangerous and disabled!")
+            print("Option 4 is too dangerous and disabled!")
             
         elif choice.lower() == 'cancel':
-            print("✅ Operation cancelled")
+            print("Operation cancelled")
         else:
-            print("❌ Invalid choice")
+            print("Invalid choice")
 
 if __name__ == '__main__':
     print("Database Management Tools")
@@ -157,4 +157,4 @@ if __name__ == '__main__':
     elif choice == '4':
         clear_old_data()
     else:
-        print("❌ Invalid choice")
+        print(" Invalid choice")

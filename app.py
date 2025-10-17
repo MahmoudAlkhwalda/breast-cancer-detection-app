@@ -783,125 +783,48 @@ def retrain_ml_model():
         return False, str(e)
 
 def retrain_cnn_model():
-    """Retrain the CNN model with combined original and new data"""
+    """Retrain the CNN model with realistic evaluation and proper data handling"""
     try:
-        print("Starting CNN model retraining with combined data...")
+        print("Starting realistic CNN model retraining...")
         
-        # Prepare combined data
-        X, y = prepare_cnn_training_data()
+        # Use the improved unified trainer
+        from script.cnn.unified_cnn_trainer import UnifiedCNNTrainer
         
-        print(f"Training with {len(X)} images")
+        # Initialize trainer
+        trainer = UnifiedCNNTrainer(input_shape=(*app.config['IMAGE_SIZE'], 3), num_classes=3)
         
-        # Split data
-        from sklearn.model_selection import train_test_split
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=42, stratify=y
+        # Train with realistic evaluation
+        history, evaluation_results = trainer.train_realistic_model(
+            data_dir='data/train',
+            epochs=50,
+            batch_size=32
         )
         
-        # Build improved CNN model
-        import tensorflow as tf
-        from tensorflow.keras.models import Sequential
-        from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
-        from tensorflow.keras.optimizers import Adam
-        from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
+        # Get realistic accuracy metrics
+        test_accuracy = evaluation_results['accuracy']
+        f1_macro = evaluation_results['f1_macro']
+        f1_weighted = evaluation_results['f1_weighted']
         
-        model = Sequential([
-            # First Conv Block
-            Conv2D(32, (3, 3), activation='relu', input_shape=(*app.config['IMAGE_SIZE'], 3)),
-            BatchNormalization(),
-            MaxPooling2D(2, 2),
-            Dropout(0.25),
-            
-            # Second Conv Block
-            Conv2D(64, (3, 3), activation='relu'),
-            BatchNormalization(),
-            MaxPooling2D(2, 2),
-            Dropout(0.25),
-            
-            # Third Conv Block
-            Conv2D(128, (3, 3), activation='relu'),
-            BatchNormalization(),
-            MaxPooling2D(2, 2),
-            Dropout(0.25),
-            
-            # Fourth Conv Block
-            Conv2D(256, (3, 3), activation='relu'),
-            BatchNormalization(),
-            MaxPooling2D(2, 2),
-            Dropout(0.25),
-            
-            # Dense layers
-            Flatten(),
-            Dense(512, activation='relu'),
-            BatchNormalization(),
-            Dropout(0.5),
-            Dense(256, activation='relu'),
-            BatchNormalization(),
-            Dropout(0.5),
-            Dense(3, activation='softmax')  # 3 classes: benign, malignant, normal
-        ])
-        
-        model.compile(
-            optimizer=Adam(learning_rate=0.001),
-            loss='sparse_categorical_crossentropy',
-            metrics=['accuracy']
-        )
-        
-        # Enhanced data augmentation
-        from tensorflow.keras.preprocessing.image import ImageDataGenerator
-        datagen = ImageDataGenerator(
-            rotation_range=30,
-            width_shift_range=0.3,
-            height_shift_range=0.3,
-            horizontal_flip=True,
-            vertical_flip=True,
-            zoom_range=0.2,
-            brightness_range=[0.8, 1.2]
-        )
-        
-        # Callbacks for better training
-        early_stopping = EarlyStopping(
-            monitor='val_accuracy',
-            patience=10,
-            restore_best_weights=True
-        )
-        
-        reduce_lr = ReduceLROnPlateau(
-            monitor='val_loss',
-            factor=0.5,
-            patience=5,
-            min_lr=0.00001
-        )
-        
-        # Train model
-        history = model.fit(
-            datagen.flow(X_train, y_train, batch_size=32),
-            epochs=50,  # Increased epochs
-            validation_data=(X_test, y_test),
-            callbacks=[early_stopping, reduce_lr],
-            verbose=1
-        )
-        
-        # Evaluate model
-        test_loss, test_accuracy = model.evaluate(X_test, y_test, verbose=0)
-        
-        print(f"CNN Model accuracy: {test_accuracy:.4f}")
+        print(f"Realistic CNN Model Results:")
+        print(f"  Test Accuracy: {test_accuracy:.4f}")
+        print(f"  F1-Score (Macro): {f1_macro:.4f}")
+        print(f"  F1-Score (Weighted): {f1_weighted:.4f}")
         
         # Save new model
         new_version = f"v{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         new_model_path = f"models/cnn_model_{new_version}.h5"
         
         os.makedirs('models', exist_ok=True)
-        model.save(new_model_path)
+        trainer.save_model(new_model_path)
         
-        # Update database
+        # Update database with realistic metrics
         update_model_version('cnn_model', new_version, new_model_path, test_accuracy)
         
         # Mark training data as used
         mark_data_as_used('image')
         
         print(f"CNN model retrained successfully! New version: {new_version}")
-        return True, f"CNN model retrained with accuracy: {test_accuracy:.4f}"
+        return True, f"CNN model retrained with realistic accuracy: {test_accuracy:.4f} (F1: {f1_macro:.4f})"
         
     except Exception as e:
         print(f"Error retraining CNN model: {e}")
